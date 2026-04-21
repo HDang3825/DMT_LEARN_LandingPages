@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning - Realistic Page Flip</title>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --table-color: #3d2b1f; 
+            --bg-body: #111;
+            /* Kích thước 1 trang */
+            --page-w: 320px;
+            --page-h: 480px;
+        }
+
+        @media (min-width: 1024px) {
+            :root { --page-w: 400px; --page-h: 550px; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background: var(--bg-body);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            perspective: 2000px;
+        }
+
+        /* --- MÔI TRƯỜNG 3D (Mặt bàn & Không gian) --- */
+        .table-surface {
+            position: absolute;
+            width: 200vw;
+            height: 200vh;
+            background: 
+                radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%),
+                url('https://www.transparenttextures.com/patterns/wood-pattern.png'),
+                var(--table-color);
+            transform: rotateX(60deg) translateZ(-350px);
+            z-index: 0;
+        }
+
+        .book-wrapper {
+            position: relative;
+            z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            
+            /* TRẠNG THÁI TRÊN BÀN */
+            transform: rotateX(40deg) rotateZ(-20deg) translateZ(-100px);
+            cursor: pointer;
+        }
+
+        /* KHI CẦM LÊN */
+        .book-wrapper.picked-up {
+            transform: rotateX(0deg) rotateZ(0deg) translateZ(100px) scale(1.05);
+            cursor: default;
+        }
+
+        /* Bóng đổ */
+        .book-shadow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            filter: blur(20px);
+            transition: all 0.8s ease;
+            z-index: -1;
+            transform: translateZ(-20px);
+        }
+
+        .picked-up .book-shadow {
+            transform: translate(40px, 40px) translateZ(-50px);
+            opacity: 0.3;
+            filter: blur(40px);
+        }
+
+        /* --- STYLES CHO THƯ VIỆN PAGE-FLIP --- */
+        /* Khi sách nằm trên bàn, tắt tương tác để tránh lỗi tọa độ chuột do xoay 3D */
+        .book-content {
+            pointer-events: none; 
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .picked-up .book-content {
+            pointer-events: auto; /* Cầm lên mới cho lật */
+        }
+
+        /* Mỗi trang giấy */
+        .page {
+            background-color: #fdfdfd;
+            color: #333;
+            border: solid 1px #e5e5e5;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .page-content {
+            padding: 2rem;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Các trang cứng (Hardcover) */
+        .page.--cover {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.2);
+        }
+
+        /* UI Elements */
+        .tag { display: inline-block; background: var(--primary); color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; margin-bottom: 10px; font-weight: bold;}
+        .hint { position: absolute; width: 100%; bottom: -40px; color: #aaa; text-align: center; font-size: 12px; transition: opacity 0.5s; pointer-events: none; }
+    </style>
+</head>
+<body id="body">
+
+<div class="table-surface"></div>
+
+<div class="book-wrapper" id="wrapper">
+    <div class="book-shadow"></div>
+    <div class="hint" id="hint">Chạm vào sách để cầm lên</div>
+    
+    <div class="book-content" id="book">
+        
+        <div class="page --cover" data-density="hard">
+            <div class="page-content">
+                <h1>E-LEARNING</h1>
+                <p style="font-size: 13px; opacity: 0.8; margin-top: 10px;">The Innovators Project</p>
+                <div style="margin-top: 30px; font-size: 12px; border: 1px solid white; padding: 5px 15px; border-radius: 20px;">
+                    Kéo mép giấy để lật ➡
+                </div>
+            </div>
+        </div>
+
+        <div class="page --cover" data-density="hard">
+            <div class="page-content"></div>
+        </div>
+
+        <div class="page">
+            <div class="page-content">
+                <div class="tag">PHẦN 1</div>
+                <h3 style="color: var(--primary);">Phân quyền thông minh</h3>
+                <p style="font-size: 14px; margin-top: 15px; line-height: 1.6;">
+                    Hệ thống quản lý vai trò đa lớp: Admin, Giáo viên, và Học sinh. Đảm bảo bảo mật và luồng dữ liệu chuẩn xác cho từng nhóm người dùng.
+                </p>
+            </div>
+        </div>
+
+        <div class="page">
+            <div class="page-content">
+                <div class="tag">PHẦN 2</div>
+                <h3 style="color: var(--primary);">Thư viện số & HLS</h3>
+                <p style="font-size: 14px; margin-top: 15px; line-height: 1.6;">
+                    - Tự động điều chỉnh độ khó tài liệu theo chuyên ngành.<br>
+                    - Tích hợp <b>HLS Streaming</b> giúp render video cực nhanh và mượt mà.
+                </p>
+            </div>
+        </div>
+
+        <div class="page">
+            <div class="page-content">
+                <div class="tag" style="background: #8b5cf6;">PHẦN 3</div>
+                <h3 style="color: var(--primary);">AI & Trình Code</h3>
+                <p style="font-size: 14px; margin-top: 15px; line-height: 1.6;">
+                    Sinh viên có thể làm bài tập code ngay trên trình duyệt (như LeetCode). 
+                    Giảng viên được AI hỗ trợ tạo đề bài chỉ trong vài giây.
+                </p>
+                <div style="background:#1e293b; color:#4ade80; padding:10px; border-radius:5px; font-family:monospace; margin-top:15px; font-size: 12px;">
+                    >_ AI is generating problem...
+                </div>
+            </div>
+        </div>
+
+        <div class="page">
+            <div class="page-content">
+                <div class="tag">PHẦN 4</div>
+                <h3 style="color: var(--primary);">Virtual Class</h3>
+                <p style="font-size: 14px; margin-top: 15px; line-height: 1.6;">
+                    Tích hợp phòng học Online với cơ chế <b>Breakout Rooms</b>, cho phép thảo luận nhóm linh hoạt mà không cần đổi nền tảng.
+                </p>
+            </div>
+        </div>
+
+        <div class="page --cover" data-density="hard">
+            <div class="page-content"></div>
+        </div>
+
+        <div class="page --cover" data-density="hard">
+            <div class="page-content">
+                <h3>CẢM ƠN BẠN!</h3>
+                <p style="font-size: 12px; margin-top: 15px;">Dự án đang trong giai đoạn phát triển.</p>
+                <p style="font-size: 12px; margin-top: 15px;">Trở lại bìa trước để xem lại.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('wrapper');
+        const hint = document.getElementById('hint');
+        let isPickedUp = false;
+
+        // 1. Khởi tạo thư viện PageFlip
+        const pageFlip = new St.PageFlip(document.getElementById('book'), {
+            width: window.innerWidth < 1024 ? 320 : 400, // Chiều rộng cơ bản
+            height: window.innerWidth < 1024 ? 480 : 550, // Chiều cao cơ bản
+            size: "fixed",
+            minWidth: 300,
+            maxWidth: 500,
+            minHeight: 400,
+            maxHeight: 600,
+            drawShadow: true, // Bật bóng đổ khi lật
+            showCover: true, // Bật chế độ trang bìa (cứng)
+            usePortrait: true, // Tự động lật 1 trang trên Mobile
+            useLandscape: true, // Tự động lật 2 trang trên Desktop
+            mobileScrollSupport: false // Tắt cuộn trang mặc định để lật mượt hơn
+        });
+
+        // 2. Load các trang HTML vào thư viện
+        pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+        // 3. Logic Cầm Sách Lên
+        wrapper.addEventListener('click', (e) => {
+            if (!isPickedUp) {
+                e.stopPropagation();
+                isPickedUp = true;
+                wrapper.classList.add('picked-up');
+                hint.style.opacity = '0';
+            }
+        });
+
+        // 4. Logic Đặt Sách Xuống
+        document.body.addEventListener('click', (e) => {
+            // Nếu sách đang được cầm, và click ra ngoài phạm vi cuốn sách
+            if (isPickedUp && !wrapper.contains(e.target)) {
+                isPickedUp = false;
+                wrapper.classList.remove('picked-up');
+                hint.style.opacity = '1';
+                
+                // Trở về trang bìa (mất 1 khoảng thời gian nhỏ để lật về)
+                pageFlip.flip(0); 
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
