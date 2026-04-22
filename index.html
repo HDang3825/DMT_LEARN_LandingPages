@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +8,32 @@
     <style>
         :root {
             --primary: #2563eb;
-            --table-color: #3d2b1f; 
+            --table-color: #3d2b1f;
             --bg-body: #111;
             --page-w: 280px;
             --page-h: 420px;
         }
 
-        @media (min-width: 1024px) {
-            :root { --page-w: 380px; --page-h: 520px; }
+        @media (max-width: 1023px) {
+            :root {
+                --page-w: 320px;
+                --page-h: 460px;
+            }
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        @media (min-width: 1024px) {
+            :root {
+                --page-w: 400px;
+                --page-h: 560px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
         body {
             background: var(--bg-body);
@@ -34,8 +50,8 @@
             position: absolute;
             width: 200vw;
             height: 200vh;
-            background: 
-                radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%),
+            background:
+                radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%),
                 url('https://www.transparenttextures.com/patterns/wood-pattern.png'),
                 var(--table-color);
             transform: rotateX(60deg) translateZ(-350px);
@@ -50,7 +66,7 @@
             z-index: 10;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
-            
+
             /* TRẠNG THÁI TRÊN BÀN */
             transform: rotateX(40deg) rotateZ(-20deg) translateZ(-100px);
             cursor: pointer;
@@ -66,7 +82,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             filter: blur(20px);
             transition: all 0.8s ease;
             z-index: -1;
@@ -103,155 +119,244 @@
             backface-visibility: hidden;
             padding: 1.5rem;
             background: #fff;
-            box-shadow: inset 3px 0 15px rgba(0,0,0,0.1);
+            box-shadow: inset 3px 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 2px 5px 5px 2px;
         }
 
-        .back { transform: rotateY(180deg); }
-        .flipped { transform: rotateY(-180deg); }
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        .flipped {
+            transform: rotateY(-180deg);
+        }
 
         /* Nội dung */
-        .cover { background: var(--primary); color: white; display: flex; flex-direction: column; justify-content: center; text-align: center; }
-        .tag { display: inline-block; background: var(--primary); color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; margin-bottom: 10px; }
-        
-        /* Điều Khiển */
-        .controls { 
-            position: fixed; bottom: 40px; display: flex; gap: 15px; z-index: 1000; 
-            opacity: 0; pointer-events: none; transition: 0.4s;
+        .cover {
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
         }
-        .controls.visible { opacity: 1; pointer-events: all; }
 
-        button { 
-            padding: 12px 28px; border: none; border-radius: 50px; cursor: pointer; 
-            font-weight: bold; background: #fff; color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+        .tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Điều Khiển */
+        .controls {
+            position: fixed;
+            bottom: 40px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.4s;
+        }
+
+        .controls.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #fff;
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
         /* Mobile Center */
         @media (max-width: 1023px) {
-            body.viewing-left .book-container.picked-up { 
-                transform: rotateX(0) rotateZ(0) translateZ(150px) scale(1.1) translateX(100%); 
+            body.viewing-left .book-container.picked-up {
+                transform: rotateX(0deg) rotateZ(0deg) translateZ(100px) scale(0.95) translateX(100%);
+            }
+
+            .controls {
+                bottom: 30px;
+                gap: 10px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 11px;
             }
         }
 
         .hint {
-            position: absolute; width: 100%; bottom: -40px; color: #aaa; text-align: center; font-size: 12px;
+            position: absolute;
+            width: 100%;
+            bottom: -40px;
+            color: #aaa;
+            text-align: center;
+            font-size: 12px;
             transition: opacity 0.5s;
         }
     </style>
 </head>
+
 <body id="body">
 
-<div class="table-surface"></div>
+    <div class="table-surface"></div>
 
-<div class="book-container" id="container">
-    <div class="book-shadow"></div>
-    <div class="hint" id="hint">Chạm vào sách để cầm lên</div>
-    
-    <div class="book" id="book">
-        <div class="page" id="p1" style="z-index: 3;">
-            <div class="face cover">
-                <h1>E-LEARNING</h1>
-                <p style="font-size: 12px; opacity: 0.8;">The Innovators Project</p>
-            </div>
-            <div class="face back">
-                <div class="tag">PHẦN 1</div>
-                <h3>Phân quyền</h3>
-                <p style="font-size: 13px; margin-top: 10px;">Cơ chế phân quyền Admin, Mentor, Student đa lớp.</p>
-            </div>
-        </div>
+    <div class="book-container" id="container">
+        <div class="book-shadow"></div>
+        <div class="hint" id="hint">Chạm vào sách để cầm lên</div>
 
-        <div class="page" id="p2" style="z-index: 2;">
-            <div class="face">
-                <div class="tag">PHẦN 2</div>
-                <h3>Thư viện HLS</h3>
-                <p style="font-size: 13px; margin-top: 10px;">Video chuẩn HLS render nhanh. Tài liệu update version theo ngành học.</p>
+        <div class="book" id="book">
+            <div class="page" id="p1" style="z-index: 3;">
+                <div class="face cover">
+                    <h1>E-LEARNING</h1>
+                    <p style="font-size: 12px; opacity: 0.8;">The Innovators Project</p>
+                </div>
+                <div class="face back">
+                    <div class="tag">PHẦN 1</div>
+                    <h3>Phân quyền</h3>
+                    <p style="font-size: 13px; margin-top: 10px;">Cơ chế phân quyền Admin, Mentor, Student đa lớp.</p>
+                </div>
             </div>
-            <div class="face back">
-                <div class="tag">PHẦN 3</div>
-                <h3>Code & AI</h3>
-                <p style="font-size: 13px; margin-top: 10px;">Trình soạn thảo Code Online và AI gợi ý tạo bài tập.</p>
-            </div>
-        </div>
 
-        <div class="page" id="p3" style="z-index: 1;">
-            <div class="face">
-                <div class="tag">PHẦN 4</div>
-                <h3>Virtual Class</h3>
-                <p style="font-size: 13px; margin-top: 10px;">Phòng học online tích hợp Breakout Rooms tiện lợi.</p>
+            <div class="page" id="p2" style="z-index: 2;">
+                <div class="face">
+                    <div class="tag">PHẦN 2</div>
+                    <h3>Thư viện HLS</h3>
+                    <p style="font-size: 13px; margin-top: 10px;">Video chuẩn HLS render nhanh. Tài liệu update version
+                        theo ngành học.</p>
+                </div>
+                <div class="face back">
+                    <div class="tag">PHẦN 3</div>
+                    <h3>Code & AI</h3>
+                    <p style="font-size: 13px; margin-top: 10px;">Trình soạn thảo Code Online và AI gợi ý tạo bài tập.
+                    </p>
+                </div>
             </div>
-            <div class="face cover" style="background: #1e293b;">
-                <h3>CẢM ƠN</h3>
-                <p style="font-size: 11px; margin-top: 15px;">Dự án đang trong giai đoạn Beta.</p>
+
+            <div class="page" id="p3" style="z-index: 1;">
+                <div class="face">
+                    <div class="tag">PHẦN 4</div>
+                    <h3>Virtual Class</h3>
+                    <p style="font-size: 13px; margin-top: 10px;">Phòng học online tích hợp Breakout Rooms tiện lợi.</p>
+                </div>
+                <div class="face cover" style="background: #1e293b;">
+                    <h3>CẢM ƠN</h3>
+                    <p style="font-size: 11px; margin-top: 15px;">Dự án đang trong giai đoạn Beta.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="controls" id="controls">
-    <button id="btnPrev">Quay lại</button>
-    <button id="btnNext">Tiếp theo</button>
-</div>
+    <div class="controls" id="controls">
+        <button id="btnPrev">Quay lại</button>
+        <button id="btnNext">Tiếp theo</button>
+    </div>
 
-<script>
-    let isPickedUp = false;
-    let step = 0;
-    const body = document.getElementById('body');
-    const container = document.getElementById('container');
-    const controls = document.getElementById('controls');
-    const hint = document.getElementById('hint');
-    const pages = document.querySelectorAll('.page');
-    const isMobile = () => window.innerWidth < 1024;
+    <script>
+        let isPickedUp = false;
+        let step = 0;
+        const body = document.getElementById('body');
+        const container = document.getElementById('container');
+        const controls = document.getElementById('controls');
+        const hint = document.getElementById('hint');
+        const pages = document.querySelectorAll('.page');
+        const isMobile = () => window.innerWidth < 1024;
 
-    // Cầm sách lên
-    container.addEventListener('click', (e) => {
-        if (!isPickedUp) {
-            e.stopPropagation(); // Ngăn sự kiện click lan ra body
-            isPickedUp = true;
-            container.classList.add('picked-up');
-            controls.classList.add('visible');
-            hint.style.opacity = '0';
+        // Xử lý Vuốt (Swipe) cho Mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            const threshold = 50; // Khoảng cách tối thiểu để nhận diện vuốt
+
+            if (Math.abs(swipeDistance) > threshold) {
+                if (swipeDistance < 0) {
+                    // Vuốt sang trái -> Tiếp theo
+                    document.getElementById('btnNext').click();
+                } else {
+                    // Vuốt sang phải -> Quay lại
+                    document.getElementById('btnPrev').click();
+                }
+            }
         }
-    });
 
-    // Đặt sách xuống khi click ra ngoài
-    body.addEventListener('click', () => {
-        if (isPickedUp) {
-            isPickedUp = false;
-            step = 0; // Reset trang
-            container.classList.remove('picked-up');
-            controls.classList.remove('visible');
-            hint.style.opacity = '1';
-            updatePages(); // Đóng tất cả trang lại
-        }
-    });
-
-    function updatePages() {
-        pages.forEach((p, i) => {
-            const pIdx = i + 1;
-            if (isMobile()) {
-                if (step >= pIdx * 2 - 1) p.classList.add('flipped');
-                else p.classList.remove('flipped');
-            } else {
-                if (step >= pIdx) p.classList.add('flipped');
-                else p.classList.remove('flipped');
+        // Cầm sách lên
+        container.addEventListener('click', (e) => {
+            if (!isPickedUp) {
+                e.stopPropagation();
+                isPickedUp = true;
+                container.classList.add('picked-up');
+                controls.classList.add('visible');
+                hint.style.opacity = '0';
             }
         });
 
-        if (isMobile() && step % 2 !== 0) body.classList.add('viewing-left');
-        else body.classList.remove('viewing-left');
-    }
+        // Đặt sách xuống khi click ra ngoài
+        body.addEventListener('click', () => {
+            if (isPickedUp) {
+                isPickedUp = false;
+                step = 0;
+                container.classList.remove('picked-up');
+                container.classList.remove('opened');
+                controls.classList.remove('visible');
+                hint.style.opacity = '1';
+                updatePages();
+            }
+        });
 
-    document.getElementById('btnNext').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const max = isMobile() ? 5 : 3;
-        if (step < max) { step++; updatePages(); }
-    });
+        function updatePages() {
+            pages.forEach((p, i) => {
+                const pIdx = i + 1;
+                if (isMobile()) {
+                    // Trên mobile lật từng trang cho dễ nhìn
+                    if (step >= pIdx) p.classList.add('flipped');
+                    else p.classList.remove('flipped');
+                } else {
+                    if (step >= pIdx) p.classList.add('flipped');
+                    else p.classList.remove('flipped');
+                }
+            });
 
-    document.getElementById('btnPrev').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (step > 0) { step--; updatePages(); }
-    });
-</script>
+            if (isMobile() && step % 2 !== 0) body.classList.add('viewing-left');
+            else body.classList.remove('viewing-left');
+
+            if (!isMobile() && step > 0) container.classList.add('opened');
+            else container.classList.remove('opened');
+        }
+
+        document.getElementById('btnNext').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const max = isMobile() ? 5 : 3;
+            if (step < max) { step++; updatePages(); }
+        });
+
+        document.getElementById('btnPrev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (step > 0) { step--; updatePages(); }
+        });
+    </script>
 
 </body>
+
 </html>
