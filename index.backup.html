@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=0.8, user-scalable=no">
+    <title>DMT_LEARN - Nền tảng học tập và giảng dạy trực tuyến </title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-body: #0a0a0c;
+            --page-w: 320px;
+            --page-h: 480px;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 1023px) {
+            :root {
+                --page-w: 340px;
+                --page-h: 500px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            :root {
+                --page-w: 450px;
+                --page-h: 640px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            /* Khóa các thao tác cuộn/kéo mặc định của trình duyệt */
+        }
+
+        body {
+            background: var(--bg-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 2000px;
+        }
+
+        .table-surface {
+            position: fixed;
+            /* Cố định mặt bàn vào khung hình */
+            width: 300vw;
+            height: 300vh;
+            top: 50%;
+            left: 50%;
+            margin-left: -150vw;
+            margin-top: -150vh;
+            background:
+                radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%),
+                url('assets/background.png');
+            background-size: cover;
+            background-position: center;
+            transform: rotateX(60deg) translateZ(-500px);
+            z-index: 0;
+            filter: brightness(0.6) contrast(1.1);
+        }
+
+        .book-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: var(--page-w);
+            height: var(--page-h);
+            margin-left: calc(var(--page-w) / -2);
+            margin-top: calc(var(--page-h) / -2);
+            z-index: 10;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            transform: rotateX(40deg) rotateZ(-20deg) translateZ(-100px);
+            cursor: pointer;
+        }
+
+        .book-container.picked-up {
+            transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.2);
+            cursor: default;
+        }
+
+        @media (min-width: 1024px) {
+            .book-container.picked-up.opened {
+                margin-left: 0;
+                transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.2);
+            }
+        }
+
+        @media (max-width: 1023px) {
+            body.viewing-left .book-container.picked-up {
+                /* Dịch chuyển sang phải tuyệt đối để đưa trang trái vào giữa */
+                transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.1) translateX(100%) !important;
+            }
+        }
+
+        .book-shadow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            filter: blur(30px);
+            transition: all 0.8s ease;
+            z-index: -1;
+            transform: translateZ(-1px);
+        }
+
+        .picked-up .book-shadow {
+            transform: translate(50px, 50px) translateZ(-20px);
+            opacity: 0.2;
+            filter: blur(50px);
+        }
+
+        .book {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            transition: transform 0.9s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+
+        .face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            padding: 2rem;
+            background: #fff;
+            box-shadow: inset 3px 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 2px 8px 8px 2px;
+        }
+
+        /* Hiệu ứng đổ bóng động trên mặt trang */
+        .face::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.9s cubic-bezier(0.15, 0, 0.15, 1);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .flipped .face::after {
+            background: rgba(0, 0, 0, 0.05);
+            /* Bóng mờ khi trang đã lật */
+        }
+
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        .flipped {
+            transform: rotateY(-180deg) translateZ(10px);
+            /* Nhấc trang lên khi lật */
+        }
+
+        /* Chiều sâu cho gáy sách */
+        .book::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            filter: blur(2px);
+            z-index: 10;
+            transform: translateZ(1px);
+        }
+
+        .cover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 1023px) {
+            .controls {
+                bottom: 30px;
+                gap: 10px;
+            }
+        }
+
+        .controls.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        button {
+            padding: 14px 32px;
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1023px) {
+            button {
+                padding: 12px 20px;
+                font-size: 11px;
+            }
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .hint {
+            position: absolute;
+            width: 100%;
+            bottom: -60px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            font-size: 13px;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+
+<body id="body">
+
+    <div class="table-surface"></div>
+
+    <div class="book-container" id="container">
+        <div class="book-shadow"></div>
+        <div class="hint" id="hint">Chạm vào sách để khám phá</div>
+
+        <div class="book" id="book">
+            <div class="page" id="p1" style="z-index: 3;">
+                <div class="face cover" style="padding: 0 !important; overflow: hidden; background: #fff;">
+                    <img src="assets/trangbia.png" style="width: 100%; height: 100%; object-fit: cover;"
+                        alt="Trang bìa">
+                </div>
+                <div class="face back">
+                    <div class="tag">PHẦN 1</div>
+                    <h3 style="font-size: 1.5rem;">Phân quyền</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Cơ chế phân quyền Admin, Mentor, Student đa lớp tối ưu cho quản lý.
+                    </p>
+                </div>
+            </div>
+
+            <div class="page" id="p2" style="z-index: 2;">
+                <div class="face">
+                    <div class="tag">PHẦN 2</div>
+                    <h3 style="font-size: 1.5rem;">Thư viện HLS</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Video chuẩn HLS render nhanh, bảo mật. Tài liệu cập nhật theo từng ngành học.
+                    </p>
+                </div>
+                <div class="face back">
+                    <div class="tag">PHẦN 3</div>
+                    <h3 style="font-size: 1.5rem;">Code & AI</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Trình soạn thảo Code Online tích hợp AI hỗ trợ gợi ý bài tập thông minh.
+                    </p>
+                </div>
+            </div>
+
+            <div class="page" id="p3" style="z-index: 1;">
+                <div class="face">
+                    <div class="tag">PHẦN 4</div>
+                    <h3 style="font-size: 1.5rem;">Virtual Class</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Phòng học trực tuyến tích hợp Breakout Rooms giúp tăng tương tác tối đa.
+                    </p>
+                </div>
+                <div class="face cover" style="background: #1e293b;">
+                    <h3 style="font-size: 1.5rem;">CẢM ƠN</h3>
+                    <p style="font-size: 12px; margin-top: 20px; opacity: 0.8;">Hệ thống đang trong giai đoạn Beta.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls" id="controls">
+        <button id="btnPrev">Quay lại</button>
+        <button id="btnNext">Tiếp theo</button>
+    </div>
+
+    <script>
+        let isPickedUp = false;
+        let step = 0;
+        const body = document.getElementById('body');
+        const container = document.getElementById('container');
+        const controls = document.getElementById('controls');
+        const hint = document.getElementById('hint');
+        const pages = document.querySelectorAll('.page');
+        const isMobile = () => window.innerWidth < 1024;
+
+        // Xử lý Vuốt (Swipe) cho Mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            const threshold = 50;
+            if (Math.abs(swipeDistance) > threshold) {
+                if (swipeDistance < 0) document.getElementById('btnNext').click();
+                else document.getElementById('btnPrev').click();
+            }
+        }
+
+        container.addEventListener('click', (e) => {
+            if (!isPickedUp) {
+                e.stopPropagation();
+                isPickedUp = true;
+                container.classList.add('picked-up');
+                controls.classList.add('visible');
+                hint.style.opacity = '0';
+            }
+        });
+
+        body.addEventListener('click', () => {
+            if (isPickedUp) {
+                isPickedUp = false;
+                step = 0;
+                container.classList.remove('picked-up');
+                container.classList.remove('opened');
+                controls.classList.remove('visible');
+                hint.style.opacity = '1';
+                updatePages();
+            }
+        });
+
+
+        function updatePages() {
+            pages.forEach((p, i) => {
+                const pIdx = i + 1;
+                if (isMobile()) {
+                    // Mobile: Mỗi tờ giấy (pIdx) chỉ lật khi step vượt qua mặt trước của nó
+                    // Tờ 1 lật ở step 1, tờ 2 lật ở step 3, tờ 3 lật ở step 5
+                    if (step >= (pIdx * 2 - 1)) p.classList.add('flipped');
+                    else p.classList.remove('flipped');
+                } else {
+                    // Desktop: Lật tờ giấy ở mỗi step
+                    if (step >= pIdx) p.classList.add('flipped');
+                    else p.classList.remove('flipped');
+                }
+            });
+
+            // Logic dịch chuyển trang trái: Chỉ bật khi xem mặt sau của tờ giấy (step lẻ)
+            if (isMobile() && step % 2 !== 0) {
+                body.classList.add('viewing-left');
+            } else {
+                body.classList.remove('viewing-left');
+            }
+
+            if (!isMobile() && step > 0) container.classList.add('opened');
+            else container.classList.remove('opened');
+        }
+
+        document.getElementById('btnNext').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const max = isMobile() ? 5 : 3;
+            if (step < max) { step++; updatePages(); }
+        });
+
+        document.getElementById('btnPrev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (step > 0) { step--; updatePages(); }
+        });
+    </script>
+</body>
+
+</html>

@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=0.8, user-scalable=no">
-    <title>E-Learning Landing Page - Premium Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=0.9, user-scalable=no">
+    <title>DMT_LEARN - Nền tảng học tập và giảng dạy trực tuyến </title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -20,15 +21,17 @@
 
         @media (max-width: 1023px) {
             :root {
-                --page-w: 340px;
-                --page-h: 500px;
+                --page-w: 360px;
+                /* Tăng nhẹ Mobile cho cân đối */
+                --page-h: 530px;
             }
         }
 
         @media (min-width: 1024px) {
             :root {
-                --page-w: 450px;
-                --page-h: 640px;
+                --page-w: 520px;
+                /* Kích thước to và sang trọng trên Desktop */
+                --page-h: 780px;
             }
         }
 
@@ -45,7 +48,6 @@
             height: 100%;
             overflow: hidden;
             touch-action: none;
-            /* Khóa các thao tác cuộn/kéo mặc định của trình duyệt */
         }
 
         body {
@@ -58,7 +60,6 @@
 
         .table-surface {
             position: fixed;
-            /* Cố định mặt bàn vào khung hình */
             width: 300vw;
             height: 300vh;
             top: 50%;
@@ -70,6 +71,7 @@
                 url('assets/background.png');
             background-size: cover;
             background-position: center;
+            /* Đồng bộ góc chuẩn từ backup */
             transform: rotateX(60deg) translateZ(-500px);
             z-index: 0;
             filter: brightness(0.6) contrast(1.1);
@@ -79,33 +81,66 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: var(--page-w);
+            width: calc(var(--page-w) * 2);
             height: var(--page-h);
-            margin-left: calc(var(--page-w) / -2);
-            margin-top: calc(var(--page-h) / -2);
             z-index: 10;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
-            transform: rotateX(40deg) rotateZ(-20deg) translateZ(-100px);
+            /* Thu nhỏ 0.85 khi nằm trên bàn để không gian thoáng hơn */
+            transform: translate(-75%, -50%) rotateX(40deg) rotateZ(-20deg) translateZ(-100px) scale(0.85);
             cursor: pointer;
         }
 
         .book-container.picked-up {
-            transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.2);
             cursor: default;
+            transform: translate(-75%, -50%) rotateX(5deg) rotateZ(0deg) translateZ(100px) scale(1.05);
         }
 
-        @media (min-width: 1024px) {
-            .book-container.picked-up.opened {
-                margin-left: 0;
-                transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.2);
-            }
+        .book-container.opened {
+            transform: translate(-50%, -50%) rotateX(40deg) rotateZ(-20deg) translateZ(-100px) scale(0.85);
+        }
+
+        .book-container.at-back {
+            transform: translate(-25%, -50%) rotateX(40deg) rotateZ(-20deg) translateZ(-100px) scale(0.85);
+        }
+
+        .book-container.picked-up.opened {
+            transform: translate3d(-50%, -50%, 0) rotateX(0deg) rotateZ(0deg) scale(1.0);
+        }
+
+        .book-container.picked-up.at-back {
+            transform: translate3d(-25%, -50%, 0) rotateX(0deg) rotateZ(0deg) scale(1.0);
         }
 
         @media (max-width: 1023px) {
-            body.viewing-left .book-container.picked-up {
-                /* Dịch chuyển sang phải tuyệt đối để đưa trang trái vào giữa */
-                transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.1) translateX(100%) !important;
+            .book-container {
+                width: calc(var(--page-w) * 2);
+                height: var(--page-h);
+                left: 50%;
+                top: 50%;
+                margin: 0;
+                transform: translate(-75%, -50%) rotateX(15deg) rotateZ(-5deg) translateZ(0);
+                transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .book-container.mobile-page-right {
+                transform: translate(-75%, -50%) rotateX(15deg) rotateZ(-5deg) translateZ(0);
+            }
+
+            .book-container.mobile-page-left {
+                transform: translate(-25%, -50%) rotateX(15deg) rotateZ(-5deg) translateZ(0);
+            }
+
+            .book-container.picked-up.mobile-page-right {
+                transform: translate(-75%, -50%) rotateX(0deg) rotateZ(0deg) translateZ(120px) scale(1.05);
+            }
+
+            .book-container.picked-up.mobile-page-left {
+                transform: translate(-25%, -50%) rotateX(0deg) rotateZ(0deg) translateZ(120px) scale(1.05);
+            }
+
+            .book-container.picked-up {
+                transform: translate(-75%, -50%) rotateX(0deg) rotateZ(0deg) translateZ(120px) scale(1.05);
             }
         }
 
@@ -127,82 +162,94 @@
         }
 
         .book {
-            position: relative;
             width: 100%;
             height: 100%;
-            transform-style: preserve-3d;
-        }
-
-        .page {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform-origin: left;
-            transform-style: preserve-3d;
-            transition: transform 0.9s cubic-bezier(0.15, 0, 0.15, 1);
-        }
-
-        .face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            padding: 2rem;
-            background: #fff;
-            box-shadow: inset 3px 0 20px rgba(0, 0, 0, 0.1);
-            border-radius: 2px 8px 8px 2px;
-        }
-
-        /* Hiệu ứng đổ bóng động trên mặt trang */
-        .face::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0);
-            transition: background 0.9s cubic-bezier(0.15, 0, 0.15, 1);
             pointer-events: none;
-            z-index: 5;
+            background: transparent;
+            position: relative;
         }
 
-        .flipped .face::after {
-            background: rgba(0, 0, 0, 0.05);
-            /* Bóng mờ khi trang đã lật */
+        .picked-up .book {
+            pointer-events: auto;
+            z-index: 100;
         }
 
-        .back {
-            transform: rotateY(180deg);
-        }
-
-        .flipped {
-            transform: rotateY(-180deg) translateZ(10px);
-            /* Nhấc trang lên khi lật */
-        }
-
-        /* Chiều sâu cho gáy sách */
         .book::before {
             content: "";
             position: absolute;
             top: 0;
-            left: 0;
-            width: 4px;
+            left: 50%;
+            width: 8px;
             height: 100%;
             background: rgba(0, 0, 0, 0.2);
-            filter: blur(2px);
-            z-index: 10;
-            transform: translateZ(1px);
+            filter: blur(4px);
+            z-index: 20;
+            transform: translateX(-50%);
+            pointer-events: none;
+            display: none;
         }
 
-        .cover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
+        .book-container.opened .book::before,
+        .book-container.at-back .book::before,
+        .picked-up .book::before {
+            display: none;
+            /* Ẩn hoàn toàn nếp gấp giữa */
+        }
+
+        .page {
+            background-color: #fff;
+            color: #333;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-radius: 2px 8px 8px 2px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .page-content {
+            padding: 0;
+            /* Loại bỏ viền trắng để hình ảnh tràn lề */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .page-content * {
+            pointer-events: auto;
+        }
+
+
+
+        .page.--front-cover {
+            padding: 0;
+            background: #fff;
+        }
+
+        .page.--front-cover .page-content {
+            padding: 0;
+            background: #fff;
+        }
+
+        .page.--back-cover {
+            padding: 0;
+            background: #fff;
+            color: #333;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .page.--back-cover .page-content {
+            background: #fff;
+            padding: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 2px 2px 8px;
         }
 
         .tag {
@@ -225,10 +272,11 @@
             transform: translateX(-50%);
             display: flex;
             gap: 20px;
-            z-index: 1000;
+            z-index: 99999;
+            /* Ưu tiên cao nhất */
             opacity: 0;
             pointer-events: none;
-            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @media (max-width: 1023px) {
@@ -240,23 +288,40 @@
 
         .controls.visible {
             opacity: 1;
-            pointer-events: all;
+            pointer-events: auto;
+            /* Chuẩn hóa pointer-events */
         }
 
         button {
-            padding: 14px 32px;
-            border: 1px solid var(--border-glass);
-            border-radius: 12px;
+            padding: 10px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            /* Viền kính sáng hơn */
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            /* Thiết lập trong suốt dạng kính */
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s;
+            backdrop-filter: blur(15px);
+            /* Hiệu ứng làm mờ xuyên thấu */
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
             text-transform: uppercase;
             font-size: 13px;
             letter-spacing: 1px;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:hover {
+            /* Giữ nguyên phong cách trong suốt khi hover */
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        button:active {
+            transform: scale(0.95);
         }
 
         @media (max-width: 1023px) {
@@ -276,10 +341,37 @@
             position: absolute;
             width: 100%;
             bottom: -60px;
+            /* Căn giữa dưới trang bìa trước (nằm ở nửa phải của container 2w) */
+            left: 75%;
+            transform: translateX(-50%);
             color: rgba(255, 255, 255, 0.5);
             text-align: center;
             font-size: 13px;
-            transition: opacity 0.5s;
+            transition: all 0.5s ease;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .opened .hint {
+            left: 50%;
+            /* Nằm giữa khi mở 2 trang */
+        }
+
+        .at-back .hint {
+            left: 25%;
+            /* Nằm giữa bìa sau */
+        }
+
+        @media (max-width: 1023px) {
+            .hint {
+                bottom: -40px;
+                font-size: 12px;
+                left: 75%;
+            }
+
+            .mobile-page-left .hint {
+                left: 25%;
+            }
         }
     </style>
 </head>
@@ -289,52 +381,49 @@
     <div class="table-surface"></div>
 
     <div class="book-container" id="container">
-        <div class="book-shadow"></div>
         <div class="hint" id="hint">Chạm vào sách để khám phá</div>
-
+        <div class="book-shadow"></div>
         <div class="book" id="book">
-            <div class="page" id="p1" style="z-index: 3;">
-                <div class="face cover" style="padding: 0 !important; overflow: hidden; background: #fff;">
+            <!-- 1. Front Cover (Outside) -->
+            <div class="page --front-cover" data-density="hard">
+                <div class="page-content">
                     <img src="assets/trangbia.png" style="width: 100%; height: 100%; object-fit: cover;"
                         alt="Trang bìa">
                 </div>
-                <div class="face back">
-                    <div class="tag">PHẦN 1</div>
-                    <h3 style="font-size: 1.5rem;">Phân quyền</h3>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
-                        Cơ chế phân quyền Admin, Mentor, Student đa lớp tối ưu cho quản lý.
-                    </p>
+            </div>
+
+            <!-- 2. Front Cover (Inside) - Trang 1 -->
+            <div class="page" data-density="hard">
+                <div class="page-content">
+                    <img src="assets/trang1.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Trang 1">
                 </div>
             </div>
 
-            <div class="page" id="p2" style="z-index: 2;">
-                <div class="face">
-                    <div class="tag">PHẦN 2</div>
-                    <h3 style="font-size: 1.5rem;">Thư viện HLS</h3>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
-                        Video chuẩn HLS render nhanh, bảo mật. Tài liệu cập nhật theo từng ngành học.
-                    </p>
-                </div>
-                <div class="face back">
-                    <div class="tag">PHẦN 3</div>
-                    <h3 style="font-size: 1.5rem;">Code & AI</h3>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
-                        Trình soạn thảo Code Online tích hợp AI hỗ trợ gợi ý bài tập thông minh.
-                    </p>
+            <!-- 3. Page 1 Front - Trang 2 -->
+            <div class="page">
+                <div class="page-content">
+                    <img src="assets/trang2.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Trang 2">
                 </div>
             </div>
 
-            <div class="page" id="p3" style="z-index: 1;">
-                <div class="face">
-                    <div class="tag">PHẦN 4</div>
-                    <h3 style="font-size: 1.5rem;">Virtual Class</h3>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
-                        Phòng học trực tuyến tích hợp Breakout Rooms giúp tăng tương tác tối đa.
-                    </p>
+            <!-- 4. Page 1 Back - Trang 3 -->
+            <div class="page">
+                <div class="page-content">
+                    <img src="assets/trang3.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Trang 3">
                 </div>
-                <div class="face cover" style="background: #1e293b;">
-                    <h3 style="font-size: 1.5rem;">CẢM ƠN</h3>
-                    <p style="font-size: 12px; margin-top: 20px; opacity: 0.8;">Hệ thống đang trong giai đoạn Beta.</p>
+            </div>
+
+            <!-- 5. Back Cover (Inside) - Trang 4 -->
+            <div class="page" data-density="hard">
+                <div class="page-content">
+                    <img src="assets/trang4.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Trang 4">
+                </div>
+            </div>
+
+            <!-- 6. Back Cover (Outside) -->
+            <div class="page --back-cover" data-density="hard">
+                <div class="page-content">
+                    <img src="assets/Timeline.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Bìa cuối">
                 </div>
             </div>
         </div>
@@ -346,95 +435,171 @@
     </div>
 
     <script>
-        let isPickedUp = false;
-        let step = 0;
-        const body = document.getElementById('body');
-        const container = document.getElementById('container');
-        const controls = document.getElementById('controls');
-        const hint = document.getElementById('hint');
-        const pages = document.querySelectorAll('.page');
-        const isMobile = () => window.innerWidth < 1024;
+        document.addEventListener('DOMContentLoaded', function () {
+            let isPickedUp = false;
+            let virtualPage = 0; // Theo dõi trang đơn lẻ trên Mobile
+            const body = document.getElementById('body');
+            const container = document.getElementById('container');
+            const controls = document.getElementById('controls');
+            const hint = document.getElementById('hint');
+            const isMobile = () => window.innerWidth < 1024;
 
-        // Xử lý Vuốt (Swipe) cho Mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        container.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        container.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const swipeDistance = touchEndX - touchStartX;
-            const threshold = 50;
-            if (Math.abs(swipeDistance) > threshold) {
-                if (swipeDistance < 0) document.getElementById('btnNext').click();
-                else document.getElementById('btnPrev').click();
+            let w = 520;
+            let h = 780;
+            if (window.innerWidth < 1024) {
+                w = 360;
+                h = 530;
             }
-        }
 
-        container.addEventListener('click', (e) => {
-            if (!isPickedUp) {
-                e.stopPropagation();
-                isPickedUp = true;
-                container.classList.add('picked-up');
-                controls.classList.add('visible');
-                hint.style.opacity = '0';
-            }
-        });
+            const pageFlip = new St.PageFlip(document.getElementById('book'), {
+                width: w,
+                height: h,
+                size: "stretch",
+                minWidth: 320,
+                maxWidth: 600,
+                minHeight: 480,
+                maxHeight: 800,
+                drawShadow: false, // Tắt nếp gấp ở giữa trang
+                showCover: true,
+                usePortrait: false,
+                autoSize: true,
+                mobileScrollSupport: false,
+                disableFlipByClick: true,
+                flippingTime: 800,
+                clickEventForward: true,
+                useMouseEvents: true,
+                showPageCorners: false,
+                maxShadowOpacity: 0.5,
+            });
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
 
-        body.addEventListener('click', () => {
-            if (isPickedUp) {
-                isPickedUp = false;
-                step = 0;
-                container.classList.remove('picked-up');
-                container.classList.remove('opened');
-                controls.classList.remove('visible');
-                hint.style.opacity = '1';
-                updatePages();
-            }
-        });
-
-
-        function updatePages() {
-            pages.forEach((p, i) => {
-                const pIdx = i + 1;
-                if (isMobile()) {
-                    // Mobile: Mỗi tờ giấy (pIdx) chỉ lật khi step vượt qua mặt trước của nó
-                    // Tờ 1 lật ở step 1, tờ 2 lật ở step 3, tờ 3 lật ở step 5
-                    if (step >= (pIdx * 2 - 1)) p.classList.add('flipped');
-                    else p.classList.remove('flipped');
+            function updateMobileShift() {
+                if (!isMobile()) return;
+                container.classList.remove('mobile-page-left', 'mobile-page-right');
+                if (virtualPage % 2 === 0) {
+                    container.classList.add('mobile-page-right');
                 } else {
-                    // Desktop: Lật tờ giấy ở mỗi step
-                    if (step >= pIdx) p.classList.add('flipped');
-                    else p.classList.remove('flipped');
+                    container.classList.add('mobile-page-left');
+                }
+            }
+
+            pageFlip.on('flip', (e) => {
+                const pageIndex = e.data;
+                const totalPages = pageFlip.getPageCount();
+
+                if (isMobile()) {
+                    virtualPage = pageIndex;
+                    updateMobileShift();
+                } else {
+                    container.classList.remove('opened', 'at-back');
+                    if (pageIndex === 0) {
+                        // Spread default
+                    } else if (pageIndex === totalPages - 1) {
+                        container.classList.add('at-back');
+                    } else {
+                        container.classList.add('opened');
+                    }
                 }
             });
 
-            // Logic dịch chuyển trang trái: Chỉ bật khi xem mặt sau của tờ giấy (step lẻ)
-            if (isMobile() && step % 2 !== 0) {
-                body.classList.add('viewing-left');
-            } else {
-                body.classList.remove('viewing-left');
+            let touchStartX = 0;
+            let touchEndX = 0;
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            container.addEventListener('touchend', (e) => {
+                if (!isPickedUp) return;
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeDistance = touchEndX - touchStartX;
+                const threshold = 30;
+                if (Math.abs(swipeDistance) > threshold) {
+                    if (swipeDistance < 0) handleNext(e);
+                    else handlePrev(e);
+                }
+            }, { passive: true });
+
+            function handlePickUp(e) {
+                if (!isPickedUp) {
+                    if (e.cancelable) e.preventDefault();
+                    e.stopPropagation();
+                    isPickedUp = true;
+                    container.classList.add('picked-up');
+                    controls.classList.add('visible');
+                    hint.style.opacity = '0';
+                    setTimeout(() => {
+                        pageFlip.update();
+                        updateMobileShift();
+                    }, 800);
+                } else {
+                    // Nếu đã nhấc sách lên rồi mà click vào trang bìa thì mới lật
+                    const currentIndex = pageFlip.getCurrentPageIndex();
+                    if (currentIndex === 0) {
+                        pageFlip.flipNext();
+                    }
+                }
             }
 
-            if (!isMobile() && step > 0) container.classList.add('opened');
-            else container.classList.remove('opened');
-        }
+            container.addEventListener('click', handlePickUp);
+            container.addEventListener('touchstart', (e) => {
+                if (!isPickedUp) handlePickUp(e);
+            }, { passive: false });
 
-        document.getElementById('btnNext').addEventListener('click', (e) => {
-            e.stopPropagation();
-            const max = isMobile() ? 5 : 3;
-            if (step < max) { step++; updatePages(); }
-        });
+            body.addEventListener('click', (e) => {
+                if (isPickedUp && !container.contains(e.target) && !controls.contains(e.target)) {
+                    isPickedUp = false;
+                    container.classList.remove('picked-up');
+                    controls.classList.remove('visible');
+                    hint.style.opacity = '1';
+                }
+            });
 
-        document.getElementById('btnPrev').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (step > 0) { step--; updatePages(); }
+            const nextBtn = document.getElementById('btnNext');
+            const prevBtn = document.getElementById('btnPrev');
+
+            function handleNext(e) {
+                if (e && e.cancelable) e.preventDefault();
+                if (e) e.stopPropagation();
+
+                if (isMobile()) {
+                    const totalPages = pageFlip.getPageCount();
+                    if (virtualPage === 0 || (virtualPage % 2 === 0 && virtualPage < totalPages - 1)) {
+                        pageFlip.flipNext();
+                    } else if (virtualPage % 2 !== 0) {
+                        virtualPage++;
+                        updateMobileShift();
+                    }
+                } else {
+                    pageFlip.flipNext();
+                }
+            }
+
+            function handlePrev(e) {
+                if (e && e.cancelable) e.preventDefault();
+                if (e) e.stopPropagation();
+
+                if (isMobile()) {
+                    if (virtualPage % 2 !== 0 || virtualPage === 0) {
+                        pageFlip.flipPrev();
+                        setTimeout(() => {
+                            if (virtualPage > 0 && virtualPage % 2 !== 0) {
+                                virtualPage++;
+                                updateMobileShift();
+                            }
+                        }, 50);
+                    } else if (virtualPage % 2 === 0 && virtualPage > 0) {
+                        virtualPage--;
+                        updateMobileShift();
+                    }
+                } else {
+                    pageFlip.flipPrev();
+                }
+            }
+
+            nextBtn.addEventListener('click', handleNext);
+            nextBtn.addEventListener('touchstart', handleNext, { passive: false });
+            prevBtn.addEventListener('click', handlePrev);
+            prevBtn.addEventListener('touchstart', handlePrev, { passive: false });
         });
     </script>
 </body>
