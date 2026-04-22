@@ -4,35 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Learning Landing Page - Pro Version</title>
+    <title>E-Learning Landing Page - Premium Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --table-color: #3d2b1f;
-            --bg-body: #111;
-            --page-w: 280px;
-            --page-h: 420px;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-body: #0a0a0c;
+            --page-w: 300px;
+            --page-h: 440px;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.1);
         }
 
         @media (max-width: 1023px) {
-            :root {
-                --page-w: 320px;
-                --page-h: 460px;
-            }
+            :root { --page-w: 320px; --page-h: 460px; }
         }
 
         @media (min-width: 1024px) {
-            :root {
-                --page-w: 400px;
-                --page-h: 560px;
-            }
+            :root { --page-w: 400px; --page-h: 560px; }
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
 
         body {
@@ -45,37 +43,49 @@
             perspective: 2000px;
         }
 
-        /* Mặt bàn */
         .table-surface {
             position: absolute;
-            width: 200vw;
-            height: 200vh;
-            background:
-                radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%),
-                url('https://www.transparenttextures.com/patterns/wood-pattern.png'),
-                var(--table-color);
-            transform: rotateX(60deg) translateZ(-350px);
+            width: 300vw;
+            height: 300vh;
+            background: 
+                radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.9) 100%),
+                url('assets/background.png');
+            background-size: cover;
+            background-position: center;
+            transform: rotateX(60deg) translateZ(-500px);
             z-index: 0;
+            filter: brightness(0.6) contrast(1.1);
         }
 
-        /* Container cuốn sách */
         .book-container {
-            position: relative;
+            position: absolute;
+            left: 50%;
+            top: 50%;
             width: var(--page-w);
             height: var(--page-h);
+            margin-left: calc(var(--page-w) / -2);
+            margin-top: calc(var(--page-h) / -2);
             z-index: 10;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
-
-            /* TRẠNG THÁI TRÊN BÀN */
             transform: rotateX(40deg) rotateZ(-20deg) translateZ(-100px);
             cursor: pointer;
         }
 
-        /* Cầm sách lên */
         .book-container.picked-up {
-            transform: rotateX(0deg) rotateZ(0deg) translateZ(150px) scale(1.1);
+            transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.05);
             cursor: default;
+        }
+
+        @media (min-width: 1024px) {
+            .book-container.picked-up.opened {
+                margin-left: 0;
+                transform: rotateX(0deg) rotateZ(0deg) translateZ(200px) scale(1.05);
+            }
+        }
+
+        body.viewing-left .book-container.picked-up { 
+            transform: rotateX(0deg) rotateZ(0deg) translateZ(100px) scale(0.95) translateX(100%); 
         }
 
         .book-shadow {
@@ -83,19 +93,18 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
-            filter: blur(20px);
+            filter: blur(30px);
             transition: all 0.8s ease;
             z-index: -1;
             transform: translateZ(-1px);
         }
 
         .picked-up .book-shadow {
-            transform: translate(50px, 50px) translateZ(-10px);
-            opacity: 0.3;
-            filter: blur(40px);
+            transform: translate(50px, 50px) translateZ(-20px);
+            opacity: 0.2;
+            filter: blur(50px);
         }
 
-        /* Cấu trúc sách */
         .book {
             position: relative;
             width: 100%;
@@ -109,7 +118,7 @@
             height: 100%;
             transform-origin: left;
             transform-style: preserve-3d;
-            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
         }
 
         .face {
@@ -117,92 +126,85 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            padding: 1.5rem;
+            padding: 2rem;
             background: #fff;
-            box-shadow: inset 3px 0 15px rgba(0, 0, 0, 0.1);
-            border-radius: 2px 5px 5px 2px;
+            box-shadow: inset 3px 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 2px 8px 8px 2px;
         }
 
-        .back {
-            transform: rotateY(180deg);
-        }
+        .back { transform: rotateY(180deg); }
+        .flipped { transform: rotateY(-180deg); }
 
-        .flipped {
-            transform: rotateY(-180deg);
-        }
-
-        /* Nội dung */
-        .cover {
-            background: var(--primary);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .cover { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .tag {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-bottom: 10px;
+        .tag { 
+            display: inline-block; 
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            padding: 5px 12px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: fit-content;
         }
 
-        /* Điều Khiển */
-        .controls {
-            position: fixed;
-            bottom: 40px;
-            display: flex;
-            gap: 15px;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.4s;
+        .controls { 
+            position: fixed; 
+            bottom: 50px; 
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex; 
+            gap: 20px; 
+            z-index: 1000; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .controls.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        button {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            background: #fff;
-            color: #000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Mobile Center */
         @media (max-width: 1023px) {
-            body.viewing-left .book-container.picked-up {
-                transform: rotateX(0deg) rotateZ(0deg) translateZ(100px) scale(0.95) translateX(100%);
-            }
+            .controls { bottom: 30px; gap: 10px; }
+        }
 
-            .controls {
-                bottom: 30px;
-                gap: 10px;
-            }
+        .controls.visible { opacity: 1; pointer-events: all; }
 
-            button {
-                padding: 10px 20px;
-                font-size: 11px;
-            }
+        button { 
+            padding: 14px 32px; 
+            border: 1px solid var(--border-glass); 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3); 
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1023px) {
+            button { padding: 12px 20px; font-size: 11px; }
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            border-color: var(--primary);
         }
 
         .hint {
-            position: absolute;
-            width: 100%;
-            bottom: -40px;
-            color: #aaa;
-            text-align: center;
-            font-size: 12px;
+            position: absolute; width: 100%; bottom: -60px; color: rgba(255,255,255,0.5); text-align: center; font-size: 13px;
             transition: opacity 0.5s;
         }
     </style>
@@ -214,32 +216,36 @@
 
     <div class="book-container" id="container">
         <div class="book-shadow"></div>
-        <div class="hint" id="hint">Chạm vào sách để cầm lên</div>
+        <div class="hint" id="hint">Chạm vào sách để khám phá</div>
 
         <div class="book" id="book">
             <div class="page" id="p1" style="z-index: 3;">
                 <div class="face cover">
-                    <h1>E-LEARNING</h1>
-                    <p style="font-size: 12px; opacity: 0.8;">The Innovators Project</p>
+                    <h1 style="font-size: 2.5rem; letter-spacing: 2px;">E-LEARNING</h1>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 10px;">The Innovators Project</p>
                 </div>
                 <div class="face back">
                     <div class="tag">PHẦN 1</div>
-                    <h3>Phân quyền</h3>
-                    <p style="font-size: 13px; margin-top: 10px;">Cơ chế phân quyền Admin, Mentor, Student đa lớp.</p>
+                    <h3 style="font-size: 1.5rem;">Phân quyền</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Cơ chế phân quyền Admin, Mentor, Student đa lớp tối ưu cho quản lý.
+                    </p>
                 </div>
             </div>
 
             <div class="page" id="p2" style="z-index: 2;">
                 <div class="face">
                     <div class="tag">PHẦN 2</div>
-                    <h3>Thư viện HLS</h3>
-                    <p style="font-size: 13px; margin-top: 10px;">Video chuẩn HLS render nhanh. Tài liệu update version
-                        theo ngành học.</p>
+                    <h3 style="font-size: 1.5rem;">Thư viện HLS</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Video chuẩn HLS render nhanh, bảo mật. Tài liệu cập nhật theo từng ngành học.
+                    </p>
                 </div>
                 <div class="face back">
                     <div class="tag">PHẦN 3</div>
-                    <h3>Code & AI</h3>
-                    <p style="font-size: 13px; margin-top: 10px;">Trình soạn thảo Code Online và AI gợi ý tạo bài tập.
+                    <h3 style="font-size: 1.5rem;">Code & AI</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Trình soạn thảo Code Online tích hợp AI hỗ trợ gợi ý bài tập thông minh.
                     </p>
                 </div>
             </div>
@@ -247,12 +253,14 @@
             <div class="page" id="p3" style="z-index: 1;">
                 <div class="face">
                     <div class="tag">PHẦN 4</div>
-                    <h3>Virtual Class</h3>
-                    <p style="font-size: 13px; margin-top: 10px;">Phòng học online tích hợp Breakout Rooms tiện lợi.</p>
+                    <h3 style="font-size: 1.5rem;">Virtual Class</h3>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 15px; color: #444;">
+                        Phòng học trực tuyến tích hợp Breakout Rooms giúp tăng tương tác tối đa.
+                    </p>
                 </div>
                 <div class="face cover" style="background: #1e293b;">
-                    <h3>CẢM ƠN</h3>
-                    <p style="font-size: 11px; margin-top: 15px;">Dự án đang trong giai đoạn Beta.</p>
+                    <h3 style="font-size: 1.5rem;">CẢM ƠN</h3>
+                    <p style="font-size: 12px; margin-top: 20px; opacity: 0.8;">Hệ thống đang trong giai đoạn Beta.</p>
                 </div>
             </div>
         </div>
@@ -288,20 +296,13 @@
 
         function handleSwipe() {
             const swipeDistance = touchEndX - touchStartX;
-            const threshold = 50; // Khoảng cách tối thiểu để nhận diện vuốt
-
+            const threshold = 50;
             if (Math.abs(swipeDistance) > threshold) {
-                if (swipeDistance < 0) {
-                    // Vuốt sang trái -> Tiếp theo
-                    document.getElementById('btnNext').click();
-                } else {
-                    // Vuốt sang phải -> Quay lại
-                    document.getElementById('btnPrev').click();
-                }
+                if (swipeDistance < 0) document.getElementById('btnNext').click();
+                else document.getElementById('btnPrev').click();
             }
         }
 
-        // Cầm sách lên
         container.addEventListener('click', (e) => {
             if (!isPickedUp) {
                 e.stopPropagation();
@@ -312,7 +313,6 @@
             }
         });
 
-        // Đặt sách xuống khi click ra ngoài
         body.addEventListener('click', () => {
             if (isPickedUp) {
                 isPickedUp = false;
@@ -329,7 +329,6 @@
             pages.forEach((p, i) => {
                 const pIdx = i + 1;
                 if (isMobile()) {
-                    // Trên mobile lật từng trang cho dễ nhìn
                     if (step >= pIdx) p.classList.add('flipped');
                     else p.classList.remove('flipped');
                 } else {
@@ -356,7 +355,6 @@
             if (step > 0) { step--; updatePages(); }
         });
     </script>
-
 </body>
 
 </html>
