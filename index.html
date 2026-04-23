@@ -488,7 +488,13 @@
                 const totalPages = pageFlip.getPageCount();
 
                 if (isMobile()) {
-                    virtualPage = pageIndex;
+                    // Logic đồng bộ virtualPage khi lật
+                    // Nếu lật lùi (pageIndex < virtualPage), ta thường muốn xem trang bên phải của cặp mới
+                    if (pageIndex < virtualPage && pageIndex > 0 && pageIndex % 2 !== 0) {
+                        virtualPage = pageIndex + 1;
+                    } else {
+                        virtualPage = pageIndex;
+                    }
                     updateMobileShift();
                 } else {
                     container.classList.remove('opened', 'at-back');
@@ -579,17 +585,15 @@
                 if (e) e.stopPropagation();
 
                 if (isMobile()) {
-                    if (virtualPage % 2 !== 0 || virtualPage === 0) {
-                        pageFlip.flipPrev();
-                        setTimeout(() => {
-                            if (virtualPage > 0 && virtualPage % 2 !== 0) {
-                                virtualPage++;
-                                updateMobileShift();
-                            }
-                        }, 50);
-                    } else if (virtualPage % 2 === 0 && virtualPage > 0) {
-                        virtualPage--;
-                        updateMobileShift();
+                    if (virtualPage > 0) {
+                        if (virtualPage % 2 === 0 && virtualPage > 0) {
+                            // Nếu đang ở trang bên phải của cặp (số chẵn), chỉ cần lùi sang trang trái
+                            virtualPage--;
+                            updateMobileShift();
+                        } else {
+                            // Nếu đang ở trang bên trái của cặp (số lẻ) hoặc bìa đơn, lật về cặp trước
+                            pageFlip.flipPrev();
+                        }
                     }
                 } else {
                     pageFlip.flipPrev();
