@@ -60,27 +60,42 @@
 
         .table-surface {
             position: fixed;
-            width: 300vw;
-            height: 300vh;
-            top: 50%;
-            left: 50%;
-            margin-left: -150vw;
-            margin-top: -150vh;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
             background:
-                radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%),
-                url('assets/background.png');
+                radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%),
+                url('assets/bg_gemini.png');
             background-size: cover;
             background-position: center;
-            /* Đồng bộ góc chuẩn từ backup */
-            transform: rotateX(60deg) translateZ(-500px);
             z-index: 0;
-            filter: brightness(0.6) contrast(1.1);
+            /* Đưa về trạng thái phẳng vừa vặn màn hình */
+            transform: none;
+            filter: brightness(0.8) contrast(1.1);
+            transition: filter 0.8s ease;
+            /* Hiệu ứng chuyển cảnh mượt mà */
+        }
+
+        body.picked-up-active .table-surface {
+            filter: blur(15px) brightness(0.6) contrast(1.1);
+        }
+
+        /* Thay đổi hình nền riêng cho Mobile */
+        @media (max-width: 1023px) {
+            .table-surface {
+                background:
+                    radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%),
+                    url('assets/bg_mobile.png');
+                background-size: cover;
+                background-position: center;
+            }
         }
 
         .book-container {
             position: absolute;
             left: 50%;
-            top: 50%;
+            top: 52.5%;
             width: calc(var(--page-w) * 2);
             height: var(--page-h);
             z-index: 10;
@@ -148,7 +163,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+
             filter: blur(30px);
             transition: all 0.8s ease;
             z-index: -1;
@@ -197,7 +212,7 @@
         }
 
         .page {
-            background-color: #fff;
+            background-color: transparent;
             color: #333;
             overflow: hidden;
             display: flex;
@@ -216,6 +231,7 @@
             overflow: hidden;
             position: relative;
             pointer-events: none;
+            background: transparent;
         }
 
         .page-content * {
@@ -226,12 +242,12 @@
 
         .page.--front-cover {
             padding: 0;
-            background: #fff;
+            background: transparent;
         }
 
         .page.--front-cover .page-content {
             padding: 0;
-            background: #fff;
+            background: transparent;
         }
 
         .page.--back-cover {
@@ -244,7 +260,7 @@
         }
 
         .page.--back-cover .page-content {
-            background: #fff;
+            background: transparent;
             padding: 0;
             display: flex;
             flex-direction: column;
@@ -387,10 +403,11 @@
             <!-- 1. Front Cover (Outside) -->
             <div class="page --front-cover" data-density="hard">
                 <div class="page-content">
-                    <img src="assets/trangbia.png" style="width: 100%; height: 100%; object-fit: cover;"
+                    <img id="coverImg" src="assets/IMG_0247.png" style="width: 100%; height: 105%; object-fit: cover;"
                         alt="Trang bìa">
                 </div>
             </div>
+
 
             <!-- 2. Front Cover (Inside) - Trang 1 -->
             <div class="page" data-density="hard">
@@ -531,6 +548,16 @@
                     e.stopPropagation();
                     isPickedUp = true;
                     container.classList.add('picked-up');
+                    body.classList.add('picked-up-active'); // Thêm class để blur nền
+
+                    // Đổi sang ảnh bìa phẳng khi nhấc sách
+                    const coverImg = document.getElementById('coverImg');
+                    if (coverImg) {
+                        coverImg.src = 'assets/trangbia.png';
+                        coverImg.style.height = '100%';
+                        coverImg.style.objectFit = 'cover';
+                    }
+
                     controls.classList.add('visible');
                     hint.style.opacity = '0';
                     setTimeout(() => {
@@ -555,6 +582,16 @@
                 if (isPickedUp && !container.contains(e.target) && !controls.contains(e.target)) {
                     isPickedUp = false;
                     container.classList.remove('picked-up');
+                    body.classList.remove('picked-up-active'); // Xóa class để hết blur
+
+                    // Đổi lại ảnh bìa nghiêng khi đặt sách xuống
+                    const coverImg = document.getElementById('coverImg');
+                    if (coverImg) {
+                        coverImg.src = 'assets/IMG_0247.png';
+                        coverImg.style.height = '105%';
+                        coverImg.style.objectFit = 'cover';
+                    }
+
                     controls.classList.remove('visible');
                     hint.style.opacity = '1';
                 }
