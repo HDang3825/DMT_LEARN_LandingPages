@@ -565,7 +565,7 @@
                     const totalPages = pageFlip.getPageCount();
                     if (virtualPage === 0 || (virtualPage % 2 === 0 && virtualPage < totalPages - 1)) {
                         pageFlip.flipNext();
-                    } else if (virtualPage % 2 !== 0) {
+                    } else if (virtualPage % 2 !== 0 && virtualPage < totalPages - 1) {
                         virtualPage++;
                         updateMobileShift();
                     }
